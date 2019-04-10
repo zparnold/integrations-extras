@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: datadog-admission-controller-deployment
+  namespace: default
+  labels:
+    app: datadog-admission-controller
+spec:
+  selector:
+    matchLabels:
+      app: datadog-admission-controller
+  template:
+    spec:
+      containers:
+      - name: datadog-admission-controller
+        image: quay.io/ygrene/dd-admission-controller:latest
+        imagePullPolicy: Always
+        volumeMounts:
+          - mountPath: /certs
+            name: tls-certs
+        ports:
+          - containerPort: 443
+      imagePullSecrets:
+        - name: quay-registry
+      volumes:
+        - name: tls-certs
+          secret:
+            secretName: dd-admission-controller-tls-certs
+      serviceAccountName: dd-admission-controller-sa
+      automountServiceAccountToken: true
+    metadata:
+      labels:
+        app: datadog-admission-controller
